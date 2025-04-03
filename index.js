@@ -1,14 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Person = require('./models/Person');
+
 
 const app = express();
 
-// Middleware deve vir antes das rotas!
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware para depuração
+
 app.use((req, res, next) => {
     console.log('Middleware de depuração:', req.method, req.url);
     console.log('Headers:', req.headers);
@@ -17,26 +17,9 @@ app.use((req, res, next) => {
 });
 
 // Rota para criar uma nova pessoa
-app.post('/person', async (req, res) => {
-    try {
-        if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({ error: 'Requisição vazia ou JSON inválido' });
-        }
+const personRoutes = require('./routes/personRoutes')
 
-        const { name, salary, aproved } = req.body;
-
-        if (!name) {
-            return res.status(422).json({ error: 'O nome é obrigatório!' });
-        }
-
-        const person = new Person({ name, salary, aproved });
-
-        await person.save();
-        res.status(201).json({ message: 'Pessoa criada com sucesso!', person });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao criar pessoa', details: error.message });
-    }
-});
+app.use('/person', personRoutes)
 
 // Rota principal
 app.get('/', (req, res) => {
